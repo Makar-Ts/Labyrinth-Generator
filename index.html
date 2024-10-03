@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Labyrinth Generator</title>
+
+    <style>
+        /* -------------------------------- Main --------------------------------- */
+
+        html {
+            font-family: Consolas, monospace;
+            background-color: rgb(0, 0, 0) !important;
+            color: rgb(255, 255, 255);
+        }
+
+        body {
+            overflow: hidden;
+        }
+
+        .container {
+            position: absolute;
+            left: 25%;
+            width: clamp(400px, 50%, 50%);
+
+            text-align: center;
+            align-items: center;
+        }
+
+        /* -------------------------------- Game --------------------------------- */
+
+        #game {
+            width: 400px;
+            border: 1px solid rgb(255, 255, 255);
+
+            image-rendering: pixelated;
+        }
+
+        /* ----------------------------- FPS & State ----------------------------- */
+
+        #fps {
+            position: fixed;
+            right: calc((100% - 400px) / 2);
+            
+            padding: 5px;
+        }
+
+        #state {
+            position: fixed;
+            right: calc((100%) / 2);
+            top: 200px;
+
+            text-align: center;
+            align-items: center;
+            
+            padding: 5px;
+
+            font-size: 60px;
+            text-shadow: 0px 0px 20px black;
+
+            background-color: rgba(0, 0, 0, 0);
+        }
+
+        #state #state_text {
+            left: 50%;
+            position: relative;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+
+
+        <!-- ----------------------------------------------------------------------- -->
+        <!--                               FPS & State                               -->
+        <!-- ----------------------------------------------------------------------- -->
+
+
+        <h1>Labyrinth Generator</h1>
+        <div id="fps">0</div>
+        <div id="state"><div id="state_text" style="display: none;">You WIN</div></div>
+        
+
+
+        <!-- ----------------------------------------------------------------------- -->
+        <!--                                  Game                                   -->
+        <!-- ----------------------------------------------------------------------- -->
+        
+
+        <canvas id="game"></canvas>
+    </div>
+
+
+
+    <!-- ----------------------------------------------------------------------- -->
+    <!--                                 Script                                  -->
+    <!-- ----------------------------------------------------------------------- -->
+
+
+    <script src="./index.js" type="module"></script>
+
+</body>
+</html>
