@@ -17,8 +17,8 @@ const state = document.getElementById("state_text")
 
 ctx.imageSmoothingEnabled = false
 
-canvas.height = 600;
-canvas.width = 600;
+canvas.height = 800;
+canvas.width = 800;
 
 const size = 2
 
@@ -52,13 +52,15 @@ const map_init = {
 const total_cross = Math.ceil(map_init.height/2)*Math.ceil(map_init.width/2)
 
 
-const gen_per_frame = 10
+const gen_per_frame = 50
 const timemout_between_frames = 0
 
 
 let cur_cross = 1
-let total_blocked_paths = 0
 let blocked_paths = [0,0,0,0]
+
+let is_mid_changed = false
+let last_worm_x = worm.x, last_worm_y = worm.y
 
 let path_back = new linkedList.LinkedList()
 
@@ -83,6 +85,8 @@ function gen() {
     let rand = getRandomInt(4)
     let cur_dir = 0
     let ny = worm.y, nx = worm.x
+
+    is_mid_changed = false
 
     blocked_paths = [
         ny+2 >= map_init.height ? true : map[nx][ny+2] != 0 ? true : false,
@@ -120,7 +124,6 @@ function gen() {
                 worm.y = getRandomInt(Math.floor(map_init.height/2))*2
             } while (map[worm.x][worm.y] == 0);
             
-            total_blocked_paths = 0
             blocked_paths = [0,0,0,0]
     
             return
@@ -169,6 +172,7 @@ function gen() {
     path_back.appendNode(new linkedList.Node((cur_dir+2)%4))
 
     map[(worm.x+nx)/2][(worm.y+ny)/2] = cur_cross+1
+    is_mid_changed = true
     worm.x = nx
     worm.y = ny
 
@@ -179,19 +183,22 @@ function gen() {
 function update() {
     if (gen_per_frame == 1) {
         gen()
+        draw()
     } else {
         for (let index = 0; index < gen_per_frame; index++) {
             gen()
+            draw()
         }
     }
 
 
     /* ----------------------------- Next Frame Prep ---------------------------- */
+    
+    if (total_cross == cur_cross) { 
+        console.log("FINISHED")
 
-    
-    draw()
-    
-    if (total_cross == cur_cross) return
+        return 
+    }
     
     if (timemout_between_frames > 0) {
         setTimeout(() => window.requestAnimationFrame(update), timemout_between_frames)
@@ -206,21 +213,50 @@ function update() {
 /*                                    Draw                                    */
 /* -------------------------------------------------------------------------- */
 
+function drawPixel(x, y, fill) {
+    ctx.fillStyle = fill
+    ctx.fillRect(x*pixel.size.x, y*pixel.size.y, pixel.size.x, pixel.size.y)
+}
+
+const getFillstyle = (x, y) => `rgb(${r(map[x][y]/total_cross*2)*255}, ${g(map[x][y]/total_cross*2)*255}, ${b(map[x][y]/total_cross*2)*255})`
 
 function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    for (let x = 0; x < map_init.width; x++) {
-        for (let y = 0; y < map_init.height; y++) {
-            if (x == worm.x && y == worm.y) {
-                ctx.fillStyle = "violet"
-            } else if (map[x][y] === 0) {
-                continue
-            } else {
-                ctx.fillStyle = `rgb(${r(map[x][y]/total_cross*2)*255}, ${g(map[x][y]/total_cross*2)*255}, ${b(map[x][y]/total_cross*2)*255})`
-            }
-            
-            ctx.fillRect(x*pixel.size.x, y*pixel.size.y, pixel.size.x, pixel.size.y)
-        }
+    if (is_mid_changed) {
+        let x=(worm.x+last_worm_x)/2, y=(worm.y+last_worm_y)/2
+        drawPixel( 
+            x, y,
+            getFillstyle(x, y)
+        )
     }
+
+    if (last_worm_x != worm.x || last_worm_y != worm.y) {
+        drawPixel(  
+            last_worm_x,
+            last_worm_y,
+            getFillstyle(last_worm_x, last_worm_y)
+        )
+
+        drawPixel(  
+            worm.x,
+            worm.y,
+            "violet"
+        )
+    }
+
+    last_worm_x = worm.x
+    last_worm_y = worm.y
+
+    // for (let x = 0; x < map_init.width; x++) {
+    //     for (let y = 0; y < map_init.height; y++) {
+    //         if (x == worm.x && y == worm.y) {
+    //             ctx.fillStyle = "violet"
+    //         } else if (map[x][y] === 0) {
+    //             continue
+    //         } else {
+    //             ctx.fillStyle = `rgb(${r(map[x][y]/total_cross*2)*255}, ${g(map[x][y]/total_cross*2)*255}, ${b(map[x][y]/total_cross*2)*255})`
+    //         }
+            
+    //         ctx.fillRect(x*pixel.size.x, y*pixel.size.y, pixel.size.x, pixel.size.y)
+    //     }
+    // }
 }
