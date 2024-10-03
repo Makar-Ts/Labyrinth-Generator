@@ -17,8 +17,8 @@ const state = document.getElementById("state_text")
 
 ctx.imageSmoothingEnabled = false
 
-canvas.height = 400;
-canvas.width = 400;
+canvas.height = 600;
+canvas.width = 600;
 
 const size = 2
 
@@ -34,8 +34,8 @@ var deltaTime = 0;
 
 const pixel = {
     size: {
-        x: 20,
-        y: 20
+        x: 2,
+        y: 2
     }
 }
 
@@ -52,8 +52,8 @@ const map_init = {
 const total_cross = Math.ceil(map_init.height/2)*Math.ceil(map_init.width/2)
 
 
-const gen_per_frame = 1
-const timemout_between_frames = 100
+const gen_per_frame = 10
+const timemout_between_frames = 0
 
 
 let cur_cross = 1
@@ -80,10 +80,38 @@ window.requestAnimationFrame(update)
 /* -------------------------------------------------------------------------- */
 
 function gen() {
-    let cur_dir = getRandomInt(4)
+    let rand = getRandomInt(4)
+    let cur_dir = 0
     let ny = worm.y, nx = worm.x
 
-    if (total_blocked_paths == 4) {
+    blocked_paths = [
+        ny+2 >= map_init.height ? true : map[nx][ny+2] != 0 ? true : false,
+        nx+2 >= map_init.width  ? true : map[nx+2][ny] != 0 ? true : false,
+        ny-2 < 0                ? true : map[nx][ny-2] != 0 ? true : false,
+        nx-2 < 0                ? true : map[nx-2][ny] != 0 ? true : false,
+    ]
+
+    let cur_path = 0, cont_calc = 0
+    for (let pf of blocked_paths) {
+        if (pf) {
+            cont_calc += 1
+        }
+    }
+
+    if (cont_calc < 4) {
+        do {
+            cur_path += 1
+            cur_path = cur_path%4
+
+            if (blocked_paths[cur_path]) {
+                continue
+            }
+            rand -= 1
+        } while (rand >= 0);
+    }
+    cur_dir = cur_path
+
+    if (cont_calc >= 4) {
         let head = path_back.removeHead()
 
         if (!head) {
@@ -114,15 +142,11 @@ function gen() {
             default:
                 break;
         }
-
-        total_blocked_paths = 0
-        blocked_paths = [0,0,0,0]
-
         worm.x = nx
         worm.y = ny
-    }
-    if (blocked_paths[cur_dir] == 1) return
 
+        return
+    }
     switch (cur_dir) {
         case 0:
             ny += 2
@@ -140,25 +164,6 @@ function gen() {
             break;
     }
 
-    if (0 > nx || map_init.width <= nx) {
-        total_blocked_paths += 1
-        blocked_paths[cur_dir] = 1
-
-        return
-    } else if (0 > ny || map_init.height <= ny) {
-        total_blocked_paths += 1
-        blocked_paths[cur_dir] = 1
-        
-        return
-    }
-
-    if (map[nx][ny] != 0) {
-        total_blocked_paths += 1
-        blocked_paths[cur_dir] = 1
-        
-        return
-    }
-
     map[nx][ny] = cur_cross+1
 
     path_back.appendNode(new linkedList.Node((cur_dir+2)%4))
@@ -168,8 +173,6 @@ function gen() {
     worm.y = ny
 
     cur_cross += 1
-    total_blocked_paths = 0
-    blocked_paths = [0,0,0,0]
 }
 
 
