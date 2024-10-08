@@ -16,15 +16,17 @@
 
         body {
             overflow: hidden;
+            overflow-y: scroll;
+            align-items: center;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            flex-direction: column;
         }
 
         .container {
-            position: absolute;
-            left: 25%;
-            width: clamp(400px, 50%, 50%);
-
+            width: fit-content;
             text-align: center;
-            align-items: center;
         }
 
         /* -------------------------------- Game --------------------------------- */
@@ -77,7 +79,7 @@
 
 
         <h1>Labyrinth Generator</h1>
-        <div id="fps">0</div>
+        <div id="fps" style="display: none;">0</div>
         <div id="state"><div id="state_text" style="display: none;">You WIN</div></div>
         
 
