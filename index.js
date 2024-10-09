@@ -8,7 +8,7 @@ const clamp = (val, mx, mn) => Math.max(mn, Math.min(mx, val))
 const   r = (x) => clamp((-0.25*(x^2) + 1), 1, 0),              // parabola from 0 to 1
         g = (x) => clamp((-0.25*(x^2) + 0.5*x + 0.75), 1, 0),   // parabola from 1 to 2
         b = (x) => clamp((-0.25*(x^2) + 1*x), 1, 0);            // parabola from 2 to 3
-const color_type = "rgb"
+const color_type = localStorage.getItem("color_type")
 
 
 
@@ -26,8 +26,8 @@ const state = document.getElementById("state_text")
 
 ctx.imageSmoothingEnabled = false
 
-canvas.height = 800;
-canvas.width = 800;
+canvas.height = localStorage.getItem("canvas_x");
+canvas.width = localStorage.getItem("canvas_y");
 
 //unused variables for fps counter
 var lft = Date.now();
@@ -44,8 +44,8 @@ var deltaTime = 0;
 
 const pixel = {
     size: { //in pixels
-        x: 10,
-        y: 10
+        x: localStorage.getItem("pixel_x"),
+        y: localStorage.getItem("pixel_y")
     }
 }
 
@@ -61,7 +61,8 @@ const map_init = {
 const total_cross = Math.ceil(map_init.height/2)*Math.ceil(map_init.width/2) 
 //total cross count
 
-const random_crosses = Math.floor(total_cross/8)
+const random_crosses_divider = localStorage.getItem("random_cross_div")
+const random_crosses = Math.floor(total_cross/random_crosses_divider)
 
 
 /* ---------------------------------- Game ---------------------------------- */
@@ -83,8 +84,8 @@ const destination_point_size = 2
 
 /* ---------------------------- Generation Speed ---------------------------- */
 
-const gen_per_frame = 50            // generations per frame
-const timemout_between_frames = 0   // milliseconds between frames
+const gen_per_frame = localStorage.getItem("gen_per_frame")            // generations per frame
+const timemout_between_frames = localStorage.getItem("timeout")   // milliseconds between frames
 
 
 /* ---------------------------- Global Variables ---------------------------- */
@@ -124,8 +125,10 @@ drawPixel(
 
 /* ---------------------------- Start Generation ---------------------------- */
 
-worm.x = getRandomInt(Math.floor(map_init.width/2))*2,
-worm.y = getRandomInt(Math.floor(map_init.height/2))*2
+if (localStorage.getItem("random_spawn") == 1) {
+    worm.x = getRandomInt(Math.floor(map_init.width/2))*2
+    worm.y = getRandomInt(Math.floor(map_init.height/2))*2
+}
 
 window.requestAnimationFrame(generation_update)
 
@@ -463,7 +466,7 @@ function generate_random_cross() {
     /* -------------------------------------------------------------------------- */
 
     
-    if (cur_random_cross <= 0) { 
+    if (cur_random_cross <= 0) {
         console.log("FINISHED")
 
         worm.x = 0
@@ -655,6 +658,8 @@ function getFillstyle(x, y) {
 
     } else if (color_type == "hsl") { // rainbow
         return `hsl(${(map[x][y]/total_cross*360)}, 100%, 50%)`
+    } else if (color_type == "bw") { // black/white
+        return map[x][y] == 0 ? "black" : "white"
     }
 }
 
